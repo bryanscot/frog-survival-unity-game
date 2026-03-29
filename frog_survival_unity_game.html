@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frog Survival Game — Unity Dev Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2330;
+    --border: #30363d;
+    --border2: #21262d;
+    --text: #e6edf3;
+    --muted: #7d8590;
+    --accent: #3fb950;
+    --accent2: #58a6ff;
+    --accent3: #d2a8ff;
+    --accent4: #ffa657;
+    --accent5: #ff7b72;
+    --tag-bg: rgba(63,185,80,0.1);
+    --code-bg: #0d1117;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, #0d1117 0%, #111820 60%, #0d1117 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 40px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, rgba(63,185,80,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: 30%;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(88,166,255,0.06) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .header-tag {
+    display: inline-block;
+    background: var(--tag-bg);
+    color: var(--accent);
+    border: 1px solid rgba(63,185,80,0.25);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  h1 {
+    font-size: clamp(28px, 4vw, 46px);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  h1 span { color: var(--accent); }
+  .header-sub {
+    color: var(--muted);
+    font-size: 15px;
+    max-width: 580px;
+    margin-bottom: 28px;
+  }
+  .header-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── LAYOUT ── */
+  .container { display: flex; min-height: calc(100vh - 260px); }
+
+  /* ── SIDEBAR ── */
+  nav {
+    width: 240px;
+    min-width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  nav::-webkit-scrollbar { width: 4px; }
+  nav::-webkit-scrollbar-track { background: transparent; }
+  nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .nav-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 12px 20px 6px;
+  }
+  nav a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 20px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 400;
+    border-left: 2px solid transparent;
+    transition: all 0.15s;
+  }
+  nav a:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+  nav a.active { color: var(--accent); border-left-color: var(--accent); background: rgba(63,185,80,0.06); }
+  .nav-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.5;
+    flex-shrink: 0;
+  }
+
+  /* ── MAIN CONTENT ── */
+  main {
+    flex: 1;
+    padding: 40px;
+    max-width: 900px;
+    overflow-x: hidden;
+  }
+
+  /* ── SECTION ── */
+  .section {
+    margin-bottom: 60px;
+    scroll-margin-top: 24px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px; height: 36px;
+    background: var(--accent);
+    color: #000;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  h2 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .section-desc {
+    color: var(--muted);
+    font-size: 14px;
+    margin-top: 4px;
+  }
+
+  /* ── STEP CARDS ── */
+  .step-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border2);
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .step-header:hover { background: rgba(255,255,255,0.04); }
+  .step-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  .tag-logic { background: rgba(210,168,255,0.12); color: var(--accent3); }
+  .tag-editor { background: rgba(88,166,255,0.12); color: var(--accent2); }
+  .tag-code { background: rgba(63,185,80,0.12); color: var(--accent); }
+  .tag-wire { background: rgba(255,166,87,0.12); color: var(--accent4); }
+  .step-title { font-size: 14px; font-weight: 600; flex: 1; }
+  .step-toggle {
+    color: var(--muted);
+    font-size: 18px;
+    transition: transform 0.2s;
+    line-height: 1;
+  }
+  .step-toggle.open { transform: rotate(180deg); }
+  .step-body { padding: 20px; display: none; }
+  .step-body.open { display: block; }
+
+  /* ── PROSE ── */
+  p { margin-bottom: 12px; color: var(--text); }
+  p:last-child { margin-bottom: 0; }
+
+  /* ── CALLOUT ── */
+  .callout {
+    background: rgba(88,166,255,0.07);
+    border: 1px solid rgba(88,166,255,0.2);
+    border-left: 3px solid var(--accent2);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 14px;
+    color: #a5c8f0;
+  }
+  .callout.green {
+    background: rgba(63,185,80,0.07);
+    border-color: rgba(63,185,80,0.2);
+    border-left-color: var(--accent);
+    color: #a3d9a5;
+  }
+  .callout.orange {
+    background: rgba(255,166,87,0.07);
+    border-color: rgba(255,166,87,0.2);
+    border-left-color: var(--accent4);
+    color: #f5c99d;
+  }
+  .callout strong { color: inherit; font-weight: 600; }
+
+  /* ── CODE ── */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+  .code-filename {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'Sora', sans-serif;
+  }
+  .copy-btn:hover { color: var(--text); border-color: var(--text); }
+  .copy-btn.copied { color: var(--accent); border-color: var(--accent); }
+  pre {
+    padding: 20px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #c9d1d9;
+  }
+  pre::-webkit-scrollbar { height: 4px; }
+  pre::-webkit-scrollbar-track { background: transparent; }
+  pre::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* Syntax highlighting */
+  .kw { color: #ff7b72; } /* keywords */
+  .ty { color: #ffa657; } /* types */
+  .cm { color: #6e7681; font-style: italic; } /* comments */
+  .st { color: #a5d6ff; } /* strings */
+  .nm { color: #79c0ff; } /* names/vars */
+  .nu { color: #d2a8ff; } /* numbers */
+  .at { color: #3fb950; } /* attributes */
+  .fn { color: #d2a8ff; } /* functions */
+
+  /* ── STEPS LIST ── */
+  ol.steps { padding-left: 0; list-style: none; counter-reset: steps; }
+  ol.steps li {
+    counter-increment: steps;
+    display: flex;
+    gap: 12px;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+  ol.steps li::before {
+    content: counter(steps);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px; height: 22px;
+    min-width: 22px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-top: 2px;
+  }
+
+  /* ── PATH BADGE ── */
+  .path {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent2);
+  }
+  .arrow { color: var(--muted); font-size: 10px; }
+
+  /* ── FROG TYPE CARDS ── */
+  .frog-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0; }
+  .frog-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .frog-emoji { font-size: 32px; display: block; margin-bottom: 8px; }
+  .frog-name { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .frog-stat { font-size: 12px; color: var(--muted); }
+  .frog-card.normal { border-top: 3px solid #3fb950; }
+  .frog-card.fast { border-top: 3px solid #58a6ff; }
+  .frog-card.tank { border-top: 3px solid #ff7b72; }
+
+  /* ── LIFECYCLE BOX ── */
+  .lifecycle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .lifecycle-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .lifecycle-name {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+  .lifecycle-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  /* ── INSPECTOR TABLE ── */
+  .inspector {
+    background: #0a0f14;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 16px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+  .inspector-header {
+    background: #1a2030;
+    padding: 8px 14px;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  .inspector-row {
+    display: flex;
+    align-items: center;
+    padding: 7px 14px;
+    border-bottom: 1px solid var(--border2);
+  }
+  .inspector-row:last-child { border-bottom: none; }
+  .inspector-key { color: var(--muted); width: 180px; flex-shrink: 0; }
+  .inspector-val { color: #a5d6ff; }
+  .inspector-val.green { color: var(--accent); }
+  .inspector-val.orange { color: var(--accent4); }
+
+  /* ── PROGRESS STRIP ── */
+  .progress-strip {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+  .ps-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .ps-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    nav { display: none; }
+    main { padding: 24px 20px; }
+    .frog-grid { grid-template-columns: 1fr; }
+    .lifecycle { grid-template-columns: 1fr; }
+    header { padding: 32px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-tag">🐸 Unity Game Dev Guide</div>
+  <h1>Frog Survival Game<br><span>From Basic to Professional</span></h1>
+  <p class="header-sub">A complete, beginner-friendly guide to implement advanced systems in Unity — with full C# scripts, Editor steps, and wiring instructions.</p>
+  <div class="header-chips">
+    <span class="chip">Unity 2022+</span>
+    <span class="chip">C# Scripting</span>
+    <span class="chip">Prefabs</span>
+    <span class="chip">UI System</span>
+    <span class="chip">Particle Systems</span>
+    <span class="chip">Singleton Pattern</span>
+  </div>
+</header>
+
+<div class="container">
+
+<nav id="sidebar">
+  <div class="nav-section-label">Features</div>
+  <a href="#spawner" class="active"><span class="nav-dot"></span>1. Advanced Spawner</a>
+  <a href="#frogs"><span class="nav-dot"></span>2. Frog Varieties</a>
+  <a href="#gamemanager"><span class="nav-dot"></span>3. Game Manager</a>
+  <a href="#ui"><span class="nav-dot"></span>4. UI / HUD</a>
+  <a href="#juice"><span class="nav-dot"></span>5. Juice & Feedback</a>
+  <div class="nav-section-label" style="margin-top:12px">Reference</div>
+  <a href="#lifecycle"><span class="nav-dot"></span>Unity Lifecycle</a>
+</nav>
+
+<main>
+
+  <div class="progress-strip">
+    <div class="ps-item"><span class="ps-dot"></span>5 Features</div>
+    <div class="ps-item"><span class="ps-dot" style="background:var(--accent2)"></span>4 Scripts</div>
+    <div class="ps-item"><span class="ps-dot" style="background:var(--accent4)"></span>3 Frog Types</div>
+    <div class="ps-item"><span class="ps-dot" style="background:var(--accent3)"></span>Full C# Code</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- SECTION 1 — SPAWNER -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="section" id="spawner">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <div>
+        <h2>Advanced Spawner</h2>
+        <div class="section-desc">Spawn frogs faster as the score increases</div>
+      </div>
+    </div>
+
+    <!-- LOGIC -->
+    <div class="step-card">
+      <div class="step-header" onclick="toggle(this)">
+        <span class="step-tag tag-logic">🧠 Logic</span>
+        <span class="step-title">How the spawner works</span>
+        <span class="step-toggle open">▾</span>
+      </div>
+      <div class="step-body open">
+        <p>The Spawner script uses Unity's built-in <strong>Coroutines</strong> — a way to pause and resume code over time. Every few seconds, it asks the GameManager for the current score, then calculates a shorter and shorter wait time as the score rises. Think of it like a treadmill that gradually speeds up.</p>
+        <p>The formula is: <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:12px;">spawnInterval = baseInterval / (1 + score * difficultyMultiplier)</code></p>
+        <div class="callout green">
+          <strong>Beginner Tip:</strong> A Coroutine (<code>IEnumerator</code>) is a special function in Unity that can pause itself using <code>yield return new WaitForSeconds(x)</code>. It's perfect for "do something every N seconds" logic.
+        </div>
+      </div>
+    </div>
+
+    <!-- EDITOR STEPS -->
+    <div class="step-card">
+      <div class="step-header" onclick="toggle(this)">
+        <span class="step-tag tag-editor">🖱️ Editor Steps</span>
+        <span class="step-title">Setting up the Spawner in Unity</span>
+        <span class="step-toggle">▾</span>
+      </div>
+      <div class="step-body">
+        <ol class="steps">
+          <li>In the <strong>Hierarchy</strong> window, right-click and select <span class="path">Create Empty</span>. Rename it to <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:3px">Spawner</code>.</li>
+          <li>In the <strong>Inspector</strong>, click <span class="path">Add Component</span> and type <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:3px">Spawner</code>, then select <em>New Script</em>.</li>
+          <li>Open the script in your code editor and replace the contents with the code below.</li>
+          <li>Create empty GameObjects named <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:3px">SpawnPointLeft</code> and <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:3px">SpawnPointRight</code> off-screen at the edges of the scene.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- CODE -->
+    <div class="step-card">
+      <div class="step-header" onclick="toggle(this)">
+        <span class="step-tag tag-code">💻 Code</span>
+        <span class="step-title">Spawner.cs — Complete script</span>
+        <span class="step-toggle">▾</span>
+      </div>
+      <div class="step-body">
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-filename">Spawner.cs</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><span class="kw">using</span> System.Collections;
+<span class="kw">using</span> UnityEngine;
+
+<span class="cm">// This script controls when and how fast frogs are spawned.</span>
+<span class="cm">// Attach it to an empty GameObject called "Spawner" in your scene.</span>
+<span class="kw">public class</span> <span class="ty">Spawner</span> : <span class="ty">MonoBehaviour</span>
+{
+    <span class="cm">// ── PUBLIC VARIABLES ──────────────────────────────────────────</span>
+    <span class="cm">// These appear in the Inspector so you can tweak them without</span>
+    <span class="cm">// touching the code. Great for balancing your game!</span>
+
+    [<span class="at">Header</span>(<span class="st">"Frog Prefabs"</span>)]
+    <span class="kw">public</span> <span class="ty">GameObject</span> normalFrogPrefab;   <span class="cm">// drag your Normal Frog prefab here</span>
+    <span class="kw">public</span> <span class="ty">GameObject</span> fastFrogPrefab;     <span class="cm">// drag your Fast Frog prefab here</span>
+    <span class="kw">public</span> <span class="ty">GameObject</span> tankFrogPrefab;     <span class="cm">// drag your Tank Frog prefab here</span>
+
+    [<span class="at">Header</span>(<span class="st">"Spawn Points"</span>)]
+    <span class="kw">public</span> <span class="ty">Transform</span> spawnPointLeft;      <span class="cm">// left edge of screen (off-screen)</span>
+    <span class="kw">public</span> <span class="ty">Transform</span> spawnPointRight;     <span class="cm">// right edge of screen (off-screen)</span>
+
+    [<span class="at">Header</span>(<span class="st">"Difficulty Settings"</span>)]
+    <span class="kw">public float</span> baseInterval = <span class="nu">2.5f</span>;   <span class="cm">// seconds between spawns at score=0</span>
+    <span class="kw">public float</span> minInterval = <span class="nu">0.4f</span>;    <span class="cm">// never spawn faster than this</span>
+    <span class="kw">public float</span> difficultyMultiplier = <span class="nu">0.02f</span>; <span class="cm">// how fast it speeds up</span>
+
+    <span class="cm">// ── PRIVATE VARIABLES ────────────────────────────────────────</span>
+    <span class="kw">private</span> <span class="ty">Coroutine</span> spawnCoroutine;    <span class="cm">// reference to our running coroutine</span>
+
+    <span class="cm">// ── START() ───────────────────────────────────────────────────</span>
+    <span class="cm">// Unity calls Start() exactly ONCE when the game begins.</span>
+    <span class="cm">// We use it to kick off our repeating spawn loop.</span>
+    <span class="kw">void</span> <span class="fn">Start</span>()
+    {
+        spawnCoroutine = <span class="fn">StartCoroutine</span>(<span class="fn">SpawnLoop</span>());
+    }
+
+    <span class="cm">// ── SPAWN LOOP ────────────────────────────────────────────────</span>
+    <span class="cm">// This Coroutine runs forever (while the game is playing).</span>
+    <span class="cm">// It waits, spawns a frog, then waits again with a shorter interval.</span>
+    <span class="ty">IEnumerator</span> <span class="fn">SpawnLoop</span>()
+    {
+        <span class="kw">while</span> (<span class="kw">true</span>)
+        {
+            <span class="cm">// 1. Get the current score from the GameManager</span>
+            <span class="kw">int</span> score = <span class="ty">GameManager</span>.instance.score;
+
+            <span class="cm">// 2. Calculate how long to wait before the next frog</span>
+            <span class="cm">// Higher score = smaller interval = frogs spawn faster</span>
+            <span class="kw">float</span> interval = baseInterval / (<span class="nu">1f</span> + score * difficultyMultiplier);
+            interval = <span class="ty">Mathf</span>.<span class="fn">Max</span>(interval, minInterval); <span class="cm">// clamp to minimum</span>
+
+            <span class="cm">// 3. Wait for that amount of time, then continue</span>
+            <span class="kw">yield return new</span> <span class="ty">WaitForSeconds</span>(interval);
+
+            <span class="cm">// 4. Only spawn if the game is still running</span>
+            <span class="kw">if</span> (<span class="ty">GameManager</span>.instance.isGameOver) <span class="kw">yield break</span>;
+
+            <span class="cm">// 5. Spawn a random frog type</span>
+            <span class="fn">SpawnRandomFrog</span>();
+        }
+    }
+
+    <span class="cm">// ── SPAWN RANDOM FROG ─────────────────────────────────────────</span>
+    <span class="cm">// Picks a random frog prefab and a random spawn side, then</span>
+    <span class="cm">// creates (Instantiates) a copy of that prefab in the scene.</span>
+    <span class="kw">void</span> <span class="fn">SpawnRandomFrog</span>()
+    {
+        <span class="cm">// Pick a random number: 0=Normal, 1=Fast, 2=Tank</span>
+        <span class="cm">// Adjust these weights to control how often each type appears</span>
+        <span class="kw">int</span> roll = <span class="ty">Random</span>.<span class="fn">Range</span>(<span class="nu">0</span>, <span class="nu">10</span>);
+        <span class="ty">GameObject</span> chosenPrefab;
+
+        <span class="kw">if</span> (roll &lt; <span class="nu">5</span>)      chosenPrefab = normalFrogPrefab; <span class="cm">// 50% chance</span>
+        <span class="kw">else if</span> (roll &lt; <span class="nu">8</span>) chosenPrefab = fastFrogPrefab;  <span class="cm">// 30% chance</span>
+        <span class="kw">else</span>               chosenPrefab = tankFrogPrefab;  <span class="cm">// 20% chance</span>
+
+        <span class="cm">// Pick a random side to spawn from</span>
+        <span class="ty">Transform</span> spawnPoint = (<span class="ty">Random</span>.<span class="fn">value</span> > <span class="nu">0.5f</span>)
+            ? spawnPointLeft
+            : spawnPointRight;
+
+        <span class="cm">// Instantiate = "create a copy of this prefab in the scene"</span>
+        <span class="ty">Instantiate</span>(chosenPrefab, spawnPoint.position, <span class="ty">Quaternion</span>.identity);
+    }
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- WIRE UP -->
+    <div class="step-card">
+      <div class="step-header" onclick="toggle(this)">
+        <span class="step-tag tag-wire">🔌 Wiring It Up</span>
+        <span class="step-title">Inspector setup for the Spawner</span>
+        <span class="step-toggle">▾</span>
+      </div>
+      <div class="step-body">
+        <div class="inspector">
+          <div class="inspector-header">Inspector — Spawner (GameObject)</div>
+          <div class="inspector-row"><span class="inspector-key">Normal Frog Prefab</span><span class="inspector-val green">← drag from Project window</span></div>
+          <div class="inspector-row"><span class="inspector-key">Fast Frog Prefab</span><span class="inspector-val green">← drag from Project window</span></div>
+          <div class="inspector-row"><span class="inspector-key">Tank Frog Prefab</span><span class="inspector-val green">← drag from Project window</span></div>
+          <div class="inspector-row"><span class="inspector-key">Spawn Point Left</span><span class="inspector-val green">← drag SpawnPointLeft from Hierarchy</span></div>
+          <div class="inspector-row"><span class="inspector-key">Spawn Point Right</span><span class="inspector-val green">← drag SpawnPointRight from Hierarchy</span></div>
+          <div class="inspector-row"><span class="inspector-key">Base Interval</span><span class="inspector-val orange">2.5</span></div>
+          <div class="inspector-row"><span class="inspector-key">Min Interval</span><span class="inspector-val orange">0.4</span></div>
+          <div class="inspector-row"><span class="inspector-key">Difficulty Multiplier</span><span class="inspector-val orange">0.02</span></div>
+        </div>
+        <div class="callout orange">
+          <strong>Tip:</strong> Set Spawn Point positions with X around ±12 (off-screen) and Y at 0. The frog's own movement script will handle direction.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- SECTION 2 — FROG VARIETIES -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="section" id="frogs">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <div>
+        <h2>Frog Varieties</h2>
+        <div class="section-desc">Normal, Fast, and Tank frogs using Prefabs</div>
+      </div>
+    </div>
+
+    <div class="frog-grid">
+      <div class="frog-card normal">
+        <span class="frog-emoji">🐸</span>
+        <div class="frog-name">Normal Frog</div>
+        <div class="frog-stat">Speed: 2 • HP: 1 click</div>
+      </div>
+      <div class="frog-card fast">
+        <span class="frog-emoji">💨</span>
+        <div class="frog-name">Fast Frog</div>
+        <div class="frog-stat">Speed: 5 • HP: 1 click</div>
+      </div>
+      <div class="frog-card tank">
+        <span class="frog-emoji">🛡️</span>
+        <div class="frog-name">Tank Frog</div>
+        <div class="frog-stat">Speed: 1.5 • HP: 2 clicks</div>
+      </div>
+    </div>
+
+    <!-- LOGIC -->
+    <div class="step-card">
+      <div class="step-header" onclick="toggle(this)">
+        <span class="step-tag tag-logic">🧠 Logic</span>
+        <span class="step-title">Prefabs and frog data</span>
+        <span class="step-toggle">▾</span>
+      </div>
+      <div class="step-body open">
+        <p>A <strong>Prefab</strong> is a reusable template for a GameObject. You design one frog, save it as a Prefab, and the Spawner can create many copies. Each frog type gets the same <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:3px">FrogController</code> script but with different <em>public variable values</em> set in the Inspector — speed, health, score value.</p>
+        <div class="callout">
+          <strong>Key concept:</strong> One script, many behaviors. The same <code>FrogController.cs</code> runs all three frog types. Only the <em>data</em> (speed, health) is different — set per-prefab in the Inspector.
+        </div>
+      </div>
+    </div>
+
+    <!-- EDITOR STEPS -->
+    <div class="step-card">
+      <div class="step-header" onclick="toggle(this)">
+        <span class="step-tag tag-editor">🖱️ Editor Steps</span>
+        <span class="step-title">Creating the three frog Prefabs</span>
+        <span class="step-toggle">▾</span>
+      </div>
+      <div class="step-body">
+        <ol class="steps">
+          <li>In the <strong>Hierarchy</strong>, right-click <span class="path">2D Object <span class="arrow">›</span> Sprite</span> to create a sprite. Rename it <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:3px">NormalFrog</code>. Assign your frog sprite in the Inspector's Sprite Renderer.</li>
+          <li>With <code>NormalFrog</code> selected, click <span class="path">Add Component</span> in the Inspector and add a <strong>Rigidbody 2D</strong>. Set Gravity Scale to <strong>0</strong>.</li>
+          <li>Add another component: <span class="path">Add Component <span class="arrow">›</span> Box Collider 2D</span> and click <em>Edit Collider</em> to fit it to the frog sprite.</li>
+          <li>Add the <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:3px">FrogController</code> script (create it via Add Component → New Script).</li>
+          <li>Drag the <code>NormalFrog</code> from the Hierarchy into the <strong>Project window</strong> (Assets folder). Unity will ask "Create Original Prefab" — click that. Delete the object from the Hierarchy.</li>
+          <li>Duplicate the Prefab twice in the Project window: rename to <code>FastFrog</code> and <code>TankFrog</code>. <strong>Double-click</strong> each to open Prefab Edit Mode and adjust the Inspector values (speed, health, color).</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- CODE -->
+    <div class="step-card">
+      <div class="step-header" onclick="toggle(this)">
+        <span class="step-tag tag-code">💻 Code</span>
+        <span class="step-title">FrogController.cs — Complete script</span>
+        <span class="step-toggle">▾</span>
+      </div>
+      <div class="step-body">
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-filename">FrogController.cs</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><span class="kw">using</span> UnityEngine;
+
+<span class="cm">// Attach this script to every frog Prefab.</span>
+<span class="cm">// Change the public variables per-prefab in the Inspector!</span>
+<span class="kw">public class</span> <span class="ty">FrogController</span> : <span class="ty">MonoBehaviour</span>
+{
+    <span class="cm">// ── PUBLIC VARIABLES ──────────────────────────────────────────</span>
+    [<span class="at">Header</span>(<span class="st">"Frog Stats"</span>)]
+    <span class="kw">public float</span> moveSpeed = <span class="nu">2f</span>;        <span class="cm">// Normal=2, Fast=5, Tank=1.5</span>
+    <span class="kw">public int</span>   health    = <span class="nu">1</span>;          <span class="cm">// Normal=1, Fast=1, Tank=2</span>
+    <span class="kw">public int</span>   scoreValue = <span class="nu">10</span>;       <span class="cm">// points awarded when killed</span>
+    <span class="kw">public</span> <span class="ty">GameObject</span> splashEffectPrefab; <span class="cm">// particle effect on death (optional)</span>
+    <span class="kw">public</span> <span class="ty">AudioClip</span>  ribbitSound;        <span class="cm">// sound on click (optional)</span>
+
+    [<span class="at">Header</span>(<span class="st">"Screen Bounds"</span>)]
+    <span class="kw">public float</span> destroyAtX = <span class="nu">15f</span>;      <span class="cm">// how far off-screen before "missed"</span>
+
+    <span class="cm">// ── PRIVATE VARIABLES ─────────────────────────────────────────</span>
+    <span class="kw">private</span> <span class="ty">Vector2</span>     moveDirection;   <span class="cm">// left or right?</span>
+    <span class="kw">private</span> <span class="ty">Rigidbody2D</span> rb;
+    <span class="kw">private</span> <span class="ty">AudioSource</span> audioSource;
+    <span class="kw">private</span> <span class="kw">int</span>         currentHealth;   <span class="cm">// tracks remaining HP</span>
+
+    <span class="cm">// ── START() ───────────────────────────────────────────────────</span>
+    <span class="cm">// Called ONCE when the frog is first created (Instantiated).</span>
+    <span class="cm">// We grab components and decide which direction to move.</span>
+    <span class="kw">void</span> <span class="fn">Start</span>()
+    {
+        rb = <span class="fn">GetComponent</span>&lt;<span class="ty">Rigidbody2D</span>&gt;();
+        audioSource = <span class="fn">GetComponent</span>&lt;<span class="ty">AudioSource</span>&gt;();
+        currentHealth = health;
+
+        <span class="cm">// If frog spawned on the left, move right; if on the right, move left.</span>
+        <span class="cm">// We check its X position relative to the screen center (X=0).</span>
+        <span class="kw">if</span> (transform.position.x &lt; <span class="nu">0</span>)
+            moveDirection = <span class="ty">Vector2</span>.right;
+        <span class="kw">else</span>
+            moveDirection = <span class="ty">Vector2</span>.left;
+
+        <span class="cm">// Flip the sprite to face the correct direction</span>
+        <span class="kw">if</span> (moveDirection == <span class="ty">Vector2</span>.left)
+            transform.localScale = <span class="kw">new</span> <span class="ty">Vector3</span>(-<span class="nu">1</span>, <span class="nu">1</span>, <span class="nu">1</span>);
+    }
+
+    <span class="cm">// ── UPDATE() ──────────────────────────────────────────────────</span>
+    <span class="cm">// Called EVERY FRAME (60+ times per second). We use it to:</span>
+    <span class="cm">// 1. Move the frog across the screen</span>
+    <span class="cm">// 2. Check if it has left the screen (player missed it)</span>
+    <span class="kw">void</span> <span class="fn">Update</span>()
+    {
+        <span class="cm">// Move the frog smoothly. Time.deltaTime ensures movement is</span>
+        <span class="cm">// frame-rate independent (same speed on any computer).</span>
+        rb.linearVelocity = moveDirection * moveSpeed;
+
+        <span class="cm">// Check if the frog has crossed the screen edge</span>
+        <span class="kw">if</span> (<span class="ty">Mathf</span>.<span class="fn">Abs</span>(transform.position.x) > destroyAtX)
+        {
+            <span class="cm">// Tell the GameManager the player missed a frog → lose a life</span>
+            <span class="ty">GameManager</span>.instance.<span class="fn">LoseLife</span>();
+
+            <span class="cm">// Remove this frog from the scene</span>
+            <span class="ty">Destroy</span>(gameObject);
+        }
+    }
+
+    <span class="cm">// ── ON MOUSE DOWN ─────────────────────────────────────────────</span>
+    <span class="cm">// Unity calls this when the player clicks on this object's Collider.</span>
+    <span class="cm">// This is the simplest way to detect clicks in 2D!</span>
+    <span class="kw">void</span> <span class="fn">OnMouseDown</span>()
+    {
+        <span class="fn">TakeDamage</span>(<span class="nu">1</span>);
+    }
+
+    <span class="cm">// ── TAKE DAMAGE ───────────────────────────────────────────────</span>
+    <span class="cm">// Reduces health. If health hits 0, the frog dies.</span>
+    <span class="cm">// The Tank frog has health=2, so it needs 2 clicks.</span>
+    <span class="kw">public void</span> <span class="fn">TakeDamage</span>(<span class="kw">int</span> amount)
+    {
+        currentHealth -= amount;
+
+        <span class="cm">// Play ribbit sound on each click</span>
+        <span class="kw">if</span> (ribbitSound != <span class="kw">null</span> &amp;&amp; audioSource != <span class="kw">null</span>)
+            audioSource.<span class="fn">PlayOneShot</span>(ribbitSound);
+
+        <span class="cm">// Visual feedback: briefly flash red (we scale the sprite)</span>
+        <span class="fn">StartCoroutine</span>(<span class="fn">FlashRed</span>());
+
+        <span class="kw">if</span> (currentHealth &lt;= <span class="nu">0</span>)
+            <span class="fn">Die</span>();
+    }
+
+    <span class="cm">// ── DIE ───────────────────────────────────────────────────────</span>
+    <span class="kw">void</span> <span class="fn">Die</span>()
+    {
+        <span class="cm">// Add score to the GameManager</span>
+        <span class="ty">GameManager</span>.instance.<span class="fn">AddScore</span>(scoreValue);
+
+        <span class="cm">// Spawn the splash particle effect at the frog's position</span>
+        <span class="kw">if</span> (splashEffectPrefab != <span class="kw">null</span>)
+            <span class="ty">Instantiate</span>(splashEffectPrefab, transform.position, <span class="ty">Quaternion</span>.identity);
+
+        <span class="cm">// Remove the frog from the scene</span>
+        <span class="ty">Destroy</span>(gameObject);
+    }
+
+    <span class="cm">// ── FLASH RED ─────────────────────────────────────────────────</span>
+    <span class="cm">// A simple hit-flash effect using the SpriteRenderer color.</span>
+    <span class="ty">System.Collections.IEnumerator</span> <span class="fn">FlashRed</span>()
+    {
+        <span class="ty">SpriteRenderer</span> sr = <span class="fn">GetComponent</span>&lt;<span class="ty">SpriteRenderer</span>&gt;();
+        sr.color = <span class="ty">Color</span>.red;
+        <span class="kw">yield return new</span> <span class="ty">WaitForSeconds</span>(<span class="nu">0.1f</span>);
+        sr.color = <span class="ty">Color</span>.white;
+    }
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- WIRE UP -->
+    <div class="step-card">
+      <div class="step-header" onclick="toggle(this)">
+        <span class="step-tag tag-wire">🔌 Wiring It Up</span>
+        <span class="step-title">Inspector values for each frog Prefab</span>
+        <span class="step-toggle">▾</span>
+      </div>
+      <div class="step-body">
+        <p>Double-click each Prefab in the Project window to enter <strong>Prefab Edit Mode</strong>, then set these values:</p>
+        <div class="inspector" style="margin-bottom:12px">
+          <div class="inspector-header">NormalFrog Prefab</div>
+          <div class="inspector-row"><span class="inspector-key">Move Speed</span><span class="inspector-val orange">2</span></div>
+          <div class="inspector-row"><span class="inspector-key">Health</span><span class="inspector-val orange">1</span></div>
+          <div class="inspector-row"><span class="inspector-key">Score Value</span><span class="inspector-val orange">10</span></div>
+        </div>
+        <div class="inspector" style="margin-bottom:12px">
+          <div class="inspector-header">FastFrog Prefab</div>
+          <div class="inspector-row"><span class="inspector-key">Move Speed</span><span class="inspector-val orange">5</span></div>
+          <div class="inspector-row"><span class="inspector-key">Health</span><span class="inspector-val orange">1</span></div>
+          <div class="inspector-row"><span class="inspector-key">Score Value</span><span class="inspector-val orange">20</span></div>
+        </div>
+        <div class="inspector">
+          <div class="inspector-header">TankFrog Prefab</div>
+          <div class="inspector-row"><span class="inspector-key">Move Speed</span><span class="inspector-val orange">1.5</span></div>
+          <div class="inspector-row"><span class="inspector-key">Health</span><span class="inspector-val orange">2</span></div>
+          <div class="inspector-row"><span class="inspector-key">Score Value</span><span class="inspector-val orange">30</span></div>
+        </div>
+        <div class="callout orange" style="margin-top:12px">
+          <strong>Tip:</strong> To make the Tank frog visually distinct, open the Prefab, select the Sprite Renderer component, and change its Color to something darker (e.g. dark green or purple).
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- SECTION 3 — GAME MANAGER -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="section" id="gamemanager">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <div>
+        <h2>Game Manager &amp; Scoring</h2>
+        <div class="section-desc">Singleton pattern for global score and lives tracking</div>
+      </div>
+    </div>
+
+    <!-- LOGIC -->
+    <div class="step-card">
+      <div class="step-header" onclick="toggle(this)">
+        <span class="step-tag tag-logic">🧠 Logic</span>
+        <span class="step-title">What is a Singleton?</span>
+        <span class="step-toggle open">▾</span>
+      </div>
+      <div class="step-body open">
+        <p>A <strong>Singleton</strong> is a pattern where only ONE instance of a script can ever exist, and every other script can access it globally using <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:3px">GameManager.instance</code> — like a global scoreboard on the wall that anyone can read or update.</p>
+        <p>The GameManager tracks:</p>
+        <ul style="margin-left:20px;font-size:14px;color:var(--muted);margin-bottom:12px">
+          <li><strong style="color:var(--text)">score</strong> — increases when a frog is clicked</li>
+          <li><strong style="color:var(--text)">lives</strong> — decreases when a frog escapes</li>
+          <li><strong style="color:var(--text)">isGameOver</strong> — a flag checked by other scripts</li>
+        </ul>
+        <div class="callout green">
+          <strong>Why use a Singleton?</strong> Without it, every script that needed the score would have to "find" the GameManager in the scene, which is slow and messy. The Singleton gives instant access from anywhere.
+        </div>
+      </div>
+    </div>
+
+    <!-- EDITOR STEPS -->
+    <div class="step-card">
+      <div class="step-header" onclick="toggle(this)">
+        <span class="step-tag tag-editor">🖱️ Editor Steps</span>
+        <span class="step-title">Creating the GameManager object</span>
+        <span class="step-toggle">▾</span>
+      </div>
+      <div class="step-body">
+        <ol class="steps">
+          <li>In the Hierarchy, right-click and select <span class="path">Create Empty</span>. Rename it <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:3px">GameManager</code>.</li>
+          <li>In the Inspector, click <span class="path">Add Component</span> and create a new script called <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:3px">GameManager</code>. Paste the code below.</li>
+          <li>This object must be in <strong>every scene</strong>. Or better: in the first scene, check <em>Don't Destroy On Load</em> (already handled in the script).</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- CODE -->
+    <div class="step-card">
+      <div class="step-header" onclick="toggle(this)">
+        <span class="step-tag tag-code">💻 Code</span>
+        <span class="step-title">GameManager.cs — Complete script</span>
+        <span class="step-toggle">▾</span>
+      </div>
+      <div class="step-body">
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-filename">GameManager.cs</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><span class="kw">using</span> UnityEngine;
+<span class="kw">using</span> UnityEngine.SceneManagement; <span class="cm">// needed for RestartGame()</span>
+
+<span class="cm">// The GameManager is the "brain" of your game.</span>
+<span class="cm">// It tracks score, lives, and game state.</span>
+<span class="cm">// Uses the Singleton pattern so any script can access it.</span>
+<span class="kw">public class</span> <span class="ty">GameManager</span> : <span class="ty">MonoBehaviour</span>
+{
+    <span class="cm">// ── SINGLETON INSTANCE ────────────────────────────────────────</span>
+    <span class="cm">// 'instance' is a static variable — it belongs to the CLASS,</span>
+    <span class="cm">// not to any specific object. That's what lets us do</span>
+    <span class="cm">// GameManager.instance from anywhere in our code.</span>
+    <span class="kw">public static</span> <span class="ty">GameManager</span> instance;
+
+    <span class="cm">// ── PUBLIC VARIABLES ──────────────────────────────────────────</span>
+    [<span class="at">Header</span>(<span class="st">"Game Settings"</span>)]
+    <span class="kw">public int</span> startingLives = <span class="nu">3</span>;
+
+    <span class="cm">// ── STATE VARIABLES ───────────────────────────────────────────</span>
+    <span class="cm">// HideInInspector keeps these out of the Inspector (they're runtime data)</span>
+    [<span class="at">HideInInspector</span>] <span class="kw">public int</span>  score;
+    [<span class="at">HideInInspector</span>] <span class="kw">public int</span>  lives;
+    [<span class="at">HideInInspector</span>] <span class="kw">public bool</span> isGameOver;
+
+    <span class="cm">// ── UI REFERENCES ─────────────────────────────────────────────</span>
+    [<span class="at">Header</span>(<span class="st">"UI References"</span>)]
+    <span class="kw">public</span> <span class="ty">UIManager</span> uiManager; <span class="cm">// we'll create this in Section 4</span>
+
+    <span class="cm">// ── AWAKE() ───────────────────────────────────────────────────</span>
+    <span class="cm">// Awake() runs BEFORE Start() — perfect for setting up the Singleton.</span>
+    <span class="cm">// It runs even if the script is disabled.</span>
+    <span class="kw">void</span> <span class="fn">Awake</span>()
+    {
+        <span class="cm">// SINGLETON PATTERN:</span>
+        <span class="cm">// If no instance exists yet, we become the instance.</span>
+        <span class="kw">if</span> (instance == <span class="kw">null</span>)
+        {
+            instance = <span class="kw">this</span>;
+            <span class="cm">// Persist this object across scene loads</span>
+            <span class="ty">DontDestroyOnLoad</span>(gameObject);
+        }
+        <span class="kw">else</span>
+        {
+            <span class="cm">// A GameManager already exists! Destroy this duplicate.</span>
+            <span class="ty">Destroy</span>(gameObject);
+        }
+    }
+
+    <span class="cm">// ── START() ───────────────────────────────────────────────────</span>
+    <span class="cm">// Initialize game state when the scene loads.</span>
+    <span class="kw">void</span> <span class="fn">Start</span>()
+    {
+        score      = <span class="nu">0</span>;
+        lives      = startingLives;
+        isGameOver = <span class="kw">false</span>;
+
+        <span class="cm">// Tell the UI to display the starting values</span>
+        uiManager?.<span class="fn">UpdateScore</span>(score);
+        uiManager?.<span class="fn">UpdateLives</span>(lives);
+    }
+
+    <span class="cm">// ── ADD SCORE ─────────────────────────────────────────────────</span>
+    <span class="cm">// Called by FrogController.Die() when a frog is clicked to death.</span>
+    <span class="kw">public void</span> <span class="fn">AddScore</span>(<span class="kw">int</span> amount)
+    {
+        <span class="kw">if</span> (isGameOver) <span class="kw">return</span>; <span class="cm">// ignore if game already over</span>
+
+        score += amount;
+
+        <span class="cm">// Update the score display on the HUD</span>
+        uiManager?.<span class="fn">UpdateScore</span>(score);
+
+        <span class="ty">Debug</span>.<span class="fn">Log</span>(<span class="st">"Score: "</span> + score);
+    }
+
+    <span class="cm">// ── LOSE LIFE ─────────────────────────────────────────────────</span>
+    <span class="cm">// Called by FrogController when a frog escapes the screen.</span>
+    <span class="kw">public void</span> <span class="fn">LoseLife</span>()
+    {
+        <span class="kw">if</span> (isGameOver) <span class="kw">return</span>;
+
+        lives--;
+        uiManager?.<span class="fn">UpdateLives</span>(lives);
+
+        <span class="ty">Debug</span>.<span class="fn">Log</span>(<span class="st">"Lives remaining: "</span> + lives);
+
+        <span class="kw">if</span> (lives &lt;= <span class="nu">0</span>)
+            <span class="fn">TriggerGameOver</span>();
+    }
+
+    <span class="cm">// ── TRIGGER GAME OVER ─────────────────────────────────────────</span>
+    <span class="kw">void</span> <span class="fn">TriggerGameOver</span>()
+    {
+        isGameOver = <span class="kw">true</span>;
+        <span class="ty">Time</span>.timeScale = <span class="nu">0f</span>; <span class="cm">// pause the game (timeScale=0 stops Update() calls)</span>
+        uiManager?.<span class="fn">ShowGameOverScreen</span>(score);
+        <span class="ty">Debug</span>.<span class="fn">Log</span>(<span class="st">"GAME OVER! Final score: "</span> + score);
+    }
+
+    <span class="cm">// ── RESTART GAME ──────────────────────────────────────────────</span>
+    <span class="cm">// Called by the Restart button on the Game Over screen.</span>
+    <span class="kw">public void</span> <span class="fn">RestartGame</span>()
+    {
+        <span class="ty">Time</span>.timeScale = <span class="nu">1f</span>; <span class="cm">// unpause before reloading</span>
+        <span class="cm">// Reload the current scene (index 0 = your main game scene)</span>
+        <span class="ty">SceneManager</span>.<span class="fn">LoadScene</span>(<span class="ty">SceneManager</span>.GetActiveScene().buildIndex);
+    }
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- WIRE UP -->
+    <div class="step-card">
+      <div class="step-header" onclick="toggle(this)">
+        <span class="step-tag tag-wire">🔌 Wiring It Up</span>
+        <span class="step-title">Inspector setup for the GameManager</span>
+        <span class="step-toggle">▾</span>
+      </div>
+      <div class="step-body">
+        <div class="inspector">
+          <div class="inspector-header">Inspector — GameManager (GameObject)</div>
+          <div class="inspector-row"><span class="inspector-key">Starting Lives</span><span class="inspector-val orange">3</span></div>
+          <div class="inspector-row"><span class="inspector-key">Ui Manager</span><span class="inspector-val green">← drag the UIManager GameObject (created in Section 4)</span></div>
+        </div>
+        <div class="callout" style="margin-top:12px">
+          <strong>Note:</strong> Leave the UIManager field empty for now. After completing Section 4, come back and drag the UIManager object here.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- SECTION 4 — UI / HUD -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="section" id="ui">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <div>
+        <h2>User Interface (UI)</h2>
+        <div class="section-desc">HUD with Score/Lives and a Game Over screen</div>
+      </div>
+    </div>
+
+    <!-- LOGIC -->
+    <div class="step-card">
+      <div class="step-header" onclick="toggle(this)">
+        <span class="step-tag tag-logic">🧠 Logic</span>
+        <span class="step-title">How Unity's UI system works</span>
+        <span class="step-toggle open">▾</span>
+      </div>
+      <div class="step-body open">
+        <p>Unity's UI elements live on a <strong>Canvas</strong> — a special "overlay" that renders on top of everything else. Inside the Canvas we add <em>Text</em> components (for score/lives) and a <em>Panel</em> for the Game Over screen.</p>
+        <p>The <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:3px">UIManager</code> script holds references to these UI elements and provides simple methods that the GameManager calls to update them.</p>
+        <div class="callout green">
+          <strong>Best practice:</strong> Keep UI code separate from game logic. The GameManager doesn't know <em>how</em> to draw text — it just calls <code>uiManager.UpdateScore(score)</code> and the UIManager handles the display.
+        </div>
+      </div>
+    </div>
+
+    <!-- EDITOR STEPS -->
+    <div class="step-card">
+      <div class="step-header" onclick="toggle(this)">
+        <span class="step-tag tag-editor">🖱️ Editor Steps</span>
+        <span class="step-title">Building the HUD in the Unity Editor</span>
+        <span class="step-toggle">▾</span>
+      </div>
+      <div class="step-body">
+        <p style="font-size:13px;color:var(--accent);font-weight:600;margin-bottom:10px">Creating the Canvas & HUD</p>
+        <ol class="steps">
+          <li>In the Hierarchy, right-click <span class="path">UI <span class="arrow">›</span> Canvas</span>. Unity auto-creates a Canvas and an EventSystem. In the Canvas Inspector, set <em>Render Mode</em> to <strong>Screen Space - Overlay</strong>.</li>
+          <li>Right-click the Canvas in the Hierarchy <span class="path">UI <span class="arrow">›</span> Legacy <span class="arrow">›</span> Text</span>. Rename it <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:3px">ScoreText</code>. In the Inspector, set its Anchor to top-left, position to (10, -10), and default text to <code>Score: 0</code>.</li>
+          <li>Duplicate ScoreText (Ctrl+D), rename it <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:3px">LivesText</code>. Move its anchor to top-right, default text to <code>Lives: 3</code>.</li>
+        </ol>
+        <p style="font-size:13px;color:var(--accent);font-weight:600;margin:16px 0 10px">Creating the Game Over Panel</p>
+        <ol class="steps">
+          <li>Right-click the Canvas <span class="path">UI <span class="arrow">›</span> Panel</span>. Rename it <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:3px">GameOverPanel</code>. Set its color to black with ~80% alpha for a darkening overlay.</li>
+          <li>Inside <code>GameOverPanel</code>, add a Text via <span class="path">UI <span class="arrow">›</span> Legacy <span class="arrow">›</span> Text</span>. Name it <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:3px">GameOverText</code>. Set text to <em>GAME OVER</em>, font size 60, centered.</li>
+          <li>Add another Text inside the panel: <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:3px">FinalScoreText</code>. Text: <em>Score: 0</em>, size 30.</li>
+          <li>Add a Button: right-click <code>GameOverPanel</code> <span class="path">UI <span class="arrow">›</span> Legacy <span class="arrow">›</span> Button</span>. Name it <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:3px">RestartButton</code>. Change its child Text to <em>Play Again</em>.</li>
+          <li><strong>Disable</strong> the GameOverPanel GameObject (uncheck the checkbox at the top of its Inspector). We only want to show it on game over.</li>
+        </ol>
+        <p style="font-size:13px;color:var(--accent);font-weight:600;margin:16px 0 10px">Adding the UIManager Script</p>
+        <ol class="steps">
+          <li>Create an empty GameObject in the Hierarchy, name it <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:3px">UIManager</code>.</li>
+          <li>Add a new script component called <code>UIManager</code> and paste the code below.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- CODE -->
+    <div class="step-card">
+      <div class="step-header" onclick="toggle(this)">
+        <span class="step-tag tag-code">💻 Code</span>
+        <span class="step-title">UIManager.cs — Complete script</span>
+        <span class="step-toggle">▾</span>
+      </div>
+      <div class="step-body">
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-filename">UIManager.cs</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><span class="kw">using</span> UnityEngine;
+<span class="kw">using</span> UnityEngine.UI; <span class="cm">// required for Text, Button, etc.</span>
+
+<span class="cm">// UIManager handles all visual UI updates.</span>
+<span class="cm">// The GameManager calls these methods — UIManager just displays the data.</span>
+<span class="kw">public class</span> <span class="ty">UIManager</span> : <span class="ty">MonoBehaviour</span>
+{
+    <span class="cm">// ── HUD REFERENCES ────────────────────────────────────────────</span>
+    [<span class="at">Header</span>(<span class="st">"HUD Elements"</span>)]
+    <span class="kw">public</span> <span class="ty">Text</span> scoreText; <span class="cm">// drag ScoreText here</span>
+    <span class="kw">public</span> <span class="ty">Text</span> livesText; <span class="cm">// drag LivesText here</span>
+
+    <span class="cm">// ── GAME OVER SCREEN REFERENCES ───────────────────────────────</span>
+    [<span class="at">Header</span>(<span class="st">"Game Over Screen"</span>)]
+    <span class="kw">public</span> <span class="ty">GameObject</span> gameOverPanel;    <span class="cm">// drag GameOverPanel here</span>
+    <span class="kw">public</span> <span class="ty">Text</span>       finalScoreText;  <span class="cm">// drag FinalScoreText here</span>
+    <span class="kw">public</span> <span class="ty">Button</span>     restartButton;   <span class="cm">// drag RestartButton here</span>
+
+    <span class="cm">// ── START() ───────────────────────────────────────────────────</span>
+    <span class="kw">void</span> <span class="fn">Start</span>()
+    {
+        <span class="cm">// Make sure the Game Over panel is hidden at the start</span>
+        gameOverPanel.<span class="fn">SetActive</span>(<span class="kw">false</span>);
+
+        <span class="cm">// Wire up the Restart button click event via code</span>
+        <span class="cm">// This calls GameManager.RestartGame() when the button is pressed</span>
+        restartButton.onClick.<span class="fn">AddListener</span>(<span class="ty">GameManager</span>.instance.<span class="fn">RestartGame</span>);
+    }
+
+    <span class="cm">// ── UPDATE SCORE ──────────────────────────────────────────────</span>
+    <span class="cm">// Called by GameManager.AddScore()</span>
+    <span class="kw">public void</span> <span class="fn">UpdateScore</span>(<span class="kw">int</span> newScore)
+    {
+        scoreText.text = <span class="st">"Score: "</span> + newScore;
+    }
+
+    <span class="cm">// ── UPDATE LIVES ──────────────────────────────────────────────</span>
+    <span class="cm">// Called by GameManager.LoseLife()</span>
+    <span class="kw">public void</span> <span class="fn">UpdateLives</span>(<span class="kw">int</span> remainingLives)
+    {
+        <span class="cm">// Show heart emojis for lives — fun and readable!</span>
+        <span class="kw">string</span> hearts = <span class="st">""</span>;
+        <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nu">0</span>; i &lt; remainingLives; i++)
+            hearts += <span class="st">"❤ "</span>;
+
+        livesText.text = <span class="st">"Lives: "</span> + hearts;
+    }
+
+    <span class="cm">// ── SHOW GAME OVER SCREEN ─────────────────────────────────────</span>
+    <span class="cm">// Called by GameManager.TriggerGameOver()</span>
+    <span class="kw">public void</span> <span class="fn">ShowGameOverScreen</span>(<span class="kw">int</span> finalScore)
+    {
+        <span class="cm">// Activate the overlay panel</span>
+        gameOverPanel.<span class="fn">SetActive</span>(<span class="kw">true</span>);
+
+        <span class="cm">// Display the final score</span>
+        finalScoreText.text = <span class="st">"Final Score: "</span> + finalScore;
+    }
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- WIRE UP -->
+    <div class="step-card">
+      <div class="step-header" onclick="toggle(this)">
+        <span class="step-tag tag-wire">🔌 Wiring It Up</span>
+        <span class="step-title">Connecting all UI references in the Inspector</span>
+        <span class="step-toggle">▾</span>
+      </div>
+      <div class="step-body">
+        <div class="inspector">
+          <div class="inspector-header">Inspector — UIManager (GameObject)</div>
+          <div class="inspector-row"><span class="inspector-key">Score Text</span><span class="inspector-val green">← drag ScoreText from Hierarchy</span></div>
+          <div class="inspector-row"><span class="inspector-key">Lives Text</span><span class="inspector-val green">← drag LivesText from Hierarchy</span></div>
+          <div class="inspector-row"><span class="inspector-key">Game Over Panel</span><span class="inspector-val green">← drag GameOverPanel from Hierarchy</span></div>
+          <div class="inspector-row"><span class="inspector-key">Final Score Text</span><span class="inspector-val green">← drag FinalScoreText from Hierarchy</span></div>
+          <div class="inspector-row"><span class="inspector-key">Restart Button</span><span class="inspector-val green">← drag RestartButton from Hierarchy</span></div>
+        </div>
+        <div class="callout" style="margin-top:12px">
+          <strong>Final step:</strong> Go back to the <strong>GameManager</strong> object's Inspector and drag the <strong>UIManager</strong> object into the UIManager field. This connects the two systems.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- SECTION 5 — JUICE -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="section" id="juice">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <div>
+        <h2>Juice &amp; Feedback</h2>
+        <div class="section-desc">Particle splash effects and ribbit audio</div>
+      </div>
+    </div>
+
+    <!-- LOGIC -->
+    <div class="step-card">
+      <div class="step-header" onclick="toggle(this)">
+        <span class="step-tag tag-logic">🧠 Logic</span>
+        <span class="step-title">What is "Juice" in game dev?</span>
+        <span class="step-toggle open">▾</span>
+      </div>
+      <div class="step-body open">
+        <p>"Juice" refers to all the small visual and audio feedback that makes a game <em>feel</em> good to play — screen shake, sound effects, particles, animations. A clicked frog that just disappears feels unsatisfying; one that bursts into green particles with a ribbit sound feels great.</p>
+        <p>We'll add two kinds of juice: a <strong>Particle System</strong> for a splash effect, and an <strong>Audio Source</strong> for ribbit sounds. Both are already referenced in the FrogController script from Section 2.</p>
+      </div>
+    </div>
+
+    <!-- PARTICLE EDITOR STEPS -->
+    <div class="step-card">
+      <div class="step-header" onclick="toggle(this)">
+        <span class="step-tag tag-editor">🖱️ Editor Steps</span>
+        <span class="step-title">Creating the Splash Particle Effect</span>
+        <span class="step-toggle">▾</span>
+      </div>
+      <div class="step-body">
+        <ol class="steps">
+          <li>In the Hierarchy, right-click <span class="path">Effects <span class="arrow">›</span> Particle System</span>. Rename it <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface2);padding:1px 5px;border-radius:3px">SplashEffect</code>.</li>
+          <li>In the Inspector's <strong>Particle System</strong> component, set these values in the main module (top section):
+            <ul style="margin-left:20px;margin-top:8px;font-size:13px;color:var(--muted)">
+              <li><strong style="color:var(--text)">Duration:</strong> 0.5</li>
+              <li><strong style="color:var(--text)">Looping:</strong> OFF (unchecked)</li>
+              <li><strong style="color:var(--text)">Start Lifetime:</strong> 0.5</li>
+              <li><strong style="color:var(--text)">Start Speed:</strong> 5</li>
+              <li><strong style="color:var(--text)">Start Size:</strong> 0.2</li>
+              <li><strong style="color:var(--text)">Start Color:</strong> Green (#3FB950)</li>
+              <li><strong style="color:var(--text)">Gravity Modifier:</strong> 1</li>
+            </ul>
+          </li>
+          <li>Expand <strong>Emission</strong>: set Rate over Time to <strong>0</strong>, and add a Burst with Count = <strong>20</strong> at Time 0.</li>
+          <li>Expand <strong>Shape</strong>: set Shape to <strong>Sphere</strong>, Radius to <strong>0.1</strong>.</li>
+          <li>Check <strong>Stop Action</strong> at the bottom of the main module — set it to <strong>Destroy</strong>. This deletes the Particle System after it's done playing!</li>
+          <li>Drag the <code>SplashEffect</code> from the Hierarchy into the <strong>Project window</strong> to save it as a Prefab. Then delete it from the Hierarchy.</li>
+          <li>Open each Frog Prefab (double-click in Project). In FrogController's Inspector, drag the <code>SplashEffect</code> Prefab into the <strong>Splash Effect Prefab</strong> field.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- AUDIO EDITOR STEPS -->
+    <div class="step-card">
+      <div class="step-header" onclick="toggle(this)">
+        <span class="step-tag tag-editor">🖱️ Editor Steps</span>
+        <span class="step-title">Adding Ribbit Audio</span>
+        <span class="step-toggle">▾</span>
+      </div>
+      <div class="step-body">
+        <ol class="steps">
+          <li>Find or download a ribbit sound effect (.wav or .mp3). Free sources: <strong>freesound.org</strong> or <strong>pixabay.com/sound-effects</strong>. Search "frog ribbit".</li>
+          <li>Drag the audio file into your Unity <strong>Project window</strong> (Assets folder). It becomes an Audio Clip asset.</li>
+          <li>Open a Frog Prefab. Click <span class="path">Add Component <span class="arrow">›</span> Audio <span class="arrow">›</span> Audio Source</span>.</li>
+          <li>In the Audio Source component: <strong>uncheck</strong> <em>Play On Awake</em> (we play it manually via script). Leave the AudioClip field blank.</li>
+          <li>In the <strong>FrogController</strong> component on the same Prefab, drag your ribbit audio clip into the <strong>Ribbit Sound</strong> field.</li>
+          <li>Repeat steps 3–5 for each frog Prefab (or use different ribbit clips per type!).</li>
+        </ol>
+        <div class="callout green">
+          <strong>How it works:</strong> The FrogController script already calls <code>audioSource.PlayOneShot(ribbitSound)</code> inside <code>TakeDamage()</code>. PlayOneShot plays the clip once without interrupting other sounds — perfect for rapid clicking.
+        </div>
+      </div>
+    </div>
+
+    <!-- BONUS CODE -->
+    <div class="step-card">
+      <div class="step-header" onclick="toggle(this)">
+        <span class="step-tag tag-code">💻 Bonus</span>
+        <span class="step-title">Optional: Simple Camera Shake on Life Lost</span>
+        <span class="step-toggle">▾</span>
+      </div>
+      <div class="step-body">
+        <p style="color:var(--muted);font-size:14px;margin-bottom:12px">Attach this to your Main Camera for extra impact when a frog escapes.</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-filename">CameraShake.cs</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><span class="kw">using</span> System.Collections;
+<span class="kw">using</span> UnityEngine;
+
+<span class="cm">// Attach to the Main Camera. Call CameraShake.instance.Shake() from anywhere.</span>
+<span class="kw">public class</span> <span class="ty">CameraShake</span> : <span class="ty">MonoBehaviour</span>
+{
+    <span class="kw">public static</span> <span class="ty">CameraShake</span> instance;
+
+    <span class="kw">public float</span> shakeDuration  = <span class="nu">0.3f</span>;
+    <span class="kw">public float</span> shakeMagnitude = <span class="nu">0.15f</span>;
+
+    <span class="kw">private</span> <span class="ty">Vector3</span> originalPosition;
+
+    <span class="kw">void</span> <span class="fn">Awake</span>()
+    {
+        instance = <span class="kw">this</span>;
+        originalPosition = transform.localPosition;
+    }
+
+    <span class="cm">// Call this from GameManager.LoseLife() like:</span>
+    <span class="cm">// CameraShake.instance?.Shake();</span>
+    <span class="kw">public void</span> <span class="fn">Shake</span>()
+    {
+        <span class="fn">StartCoroutine</span>(<span class="fn">ShakeCoroutine</span>());
+    }
+
+    <span class="ty">IEnumerator</span> <span class="fn">ShakeCoroutine</span>()
+    {
+        <span class="kw">float</span> elapsed = <span class="nu">0f</span>;
+
+        <span class="kw">while</span> (elapsed &lt; shakeDuration)
+        {
+            <span class="cm">// Randomly offset the camera's position each frame</span>
+            <span class="kw">float</span> x = <span class="ty">Random</span>.<span class="fn">Range</span>(-<span class="nu">1f</span>, <span class="nu">1f</span>) * shakeMagnitude;
+            <span class="kw">float</span> y = <span class="ty">Random</span>.<span class="fn">Range</span>(-<span class="nu">1f</span>, <span class="nu">1f</span>) * shakeMagnitude;
+
+            transform.localPosition = originalPosition + <span class="kw">new</span> <span class="ty">Vector3</span>(x, y, <span class="nu">0</span>);
+
+            elapsed += <span class="ty">Time</span>.deltaTime;
+            <span class="kw">yield return null</span>; <span class="cm">// wait one frame, then continue</span>
+        }
+
+        <span class="cm">// Reset to original position when done</span>
+        transform.localPosition = originalPosition;
+    }
+}</pre>
+        </div>
+        <div class="callout orange" style="margin-top:12px">
+          <strong>To activate:</strong> Add <code style="font-family:'JetBrains Mono',monospace;font-size:12px">CameraShake.instance?.Shake();</code> inside <code>GameManager.LoseLife()</code> after the <code>lives--</code> line.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- LIFECYCLE REFERENCE -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="section" id="lifecycle">
+    <div class="section-header">
+      <div class="section-num" style="background:var(--accent2)">📖</div>
+      <div>
+        <h2>Unity Lifecycle Quick Reference</h2>
+        <div class="section-desc">The order Unity calls your script methods</div>
+      </div>
+    </div>
+
+    <div class="lifecycle">
+      <div class="lifecycle-item">
+        <div class="lifecycle-name">Awake()</div>
+        <div class="lifecycle-desc">First thing called when the object is created. Runs even if the script is disabled. Use for: Singleton setup, getting components.</div>
+      </div>
+      <div class="lifecycle-item">
+        <div class="lifecycle-name">Start()</div>
+        <div class="lifecycle-desc">Called once just before the first Update(). Only runs if the script is enabled. Use for: initializing variables, starting Coroutines.</div>
+      </div>
+      <div class="lifecycle-item">
+        <div class="lifecycle-name">Update()</div>
+        <div class="lifecycle-desc">Called every single frame (60+ times/sec). Use for: movement, input reading, checking conditions. Always multiply by Time.deltaTime for smooth motion.</div>
+      </div>
+      <div class="lifecycle-item">
+        <div class="lifecycle-name">FixedUpdate()</div>
+        <div class="lifecycle-desc">Called at a fixed time step (50/sec by default). Use for: physics calculations with Rigidbody. More reliable than Update() for physics.</div>
+      </div>
+      <div class="lifecycle-item">
+        <div class="lifecycle-name">OnMouseDown()</div>
+        <div class="lifecycle-desc">Called when the player clicks on this object's Collider. The easiest way to detect click/tap input on 2D objects. No extra input code needed!</div>
+      </div>
+      <div class="lifecycle-item">
+        <div class="lifecycle-name">OnDestroy()</div>
+        <div class="lifecycle-desc">Called just before this object is removed from the scene. Use for: cleanup, unsubscribing from events, saving data.</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Order of execution:</strong> Awake → OnEnable → Start → Update (every frame) → FixedUpdate (fixed interval) → OnDisable → OnDestroy
+    </div>
+  </section>
+
+</main>
+</div>
+
+<script>
+  function toggle(header) {
+    const body = header.nextElementSibling;
+    const arrow = header.querySelector('.step-toggle');
+    const isOpen = body.classList.contains('open');
+    body.classList.toggle('open', !isOpen);
+    body.style.display = isOpen ? 'none' : 'block';
+    arrow.classList.toggle('open', !isOpen);
+  }
+
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copy';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+
+  // Active nav on scroll
+  const sections = document.querySelectorAll('.section');
+  const navLinks = document.querySelectorAll('nav a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navLinks.forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+
+  // Init: ensure first step bodies that are "open" are visible
+  document.querySelectorAll('.step-body.open').forEach(b => b.style.display = 'block');
+</script>
+
+</body>
+</html>
